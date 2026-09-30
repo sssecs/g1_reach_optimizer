@@ -1,0 +1,26 @@
+# Python caches and tooling
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+
+# Packaging and local environments
+*.egg-info/
+build/
+dist/
+.venv/
+venv/
+env/
+.env
+
+# Generated pose banks and logs
+pose_bank_output*/
+*.log
+
+# Editor and OS files
+.DS_Store
+.idea/
+.vscode/

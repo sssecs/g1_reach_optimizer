@@ -1,0 +1,23 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "g1-static-pose-bank"
+version = "0.5.1"
+description = "Static multi-contact pose-bank generator for Unitree G1."
+readme = "README.md"
+requires-python = ">=3.10,<3.13"
+dependencies = [
+  "numpy>=1.24",
+  "scipy>=1.11",
+  "pyyaml>=6.0",
+  "mujoco>=3.2",
+  "cyipopt>=1.5"
+]
+
+[project.scripts]
+g1-pose-bank = "g1_pose_bank.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]

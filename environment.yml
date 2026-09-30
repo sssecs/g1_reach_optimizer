@@ -1,0 +1,14 @@
+name: g1-pose-bank
+channels:
+  - conda-forge
+dependencies:
+  - python=3.10
+  - numpy>=1.24
+  - scipy>=1.11
+  - pyyaml>=6.0
+  - ipopt>=3.14
+  - cyipopt>=1.5
+  - pip
+  - pip:
+      - mujoco>=3.2
+      - -e .

@@ -1,0 +1,189 @@
+robot:
+  mjcf: assets/g1/g1.xml
+  # Center of each wrist collision capsule, in the wrist pitch link frame.
+  left_target_point: {body: left_wrist_pitch_link, offset: [0.025, 0.0, 0.0]}
+  right_target_point: {body: right_wrist_pitch_link, offset: [0.025, 0.0, 0.0]}
+  left_shoulder_body: left_shoulder_pitch_link
+  right_shoulder_body: right_shoulder_pitch_link
+  auto_ground_initial: true
+  initial_root_pos: [0.0, 0.0, 0.8]
+  initial_root_quat_wxyz: [1.0, 0.0, 0.0, 0.0]
+  initial_joint_regex_values:
+    ".*_hip_pitch_joint": -0.1
+    ".*_knee_joint": 0.3
+    ".*_ankle_pitch_joint": -0.2
+    ".*_shoulder_pitch_joint": 0.35
+    ".*_elbow_joint": 0.87
+    "left_shoulder_roll_joint": 0.18
+    "right_shoulder_roll_joint": -0.18
+
+task:
+  target_mode: both
+  target_heights: [0.55, 0.40, 0.25, 0.12]  # wrist-center heights above ground
+  hard_hand_height: true
+  # Horizontal distance from torso origin along the pelvis heading.
+  wrist_forward_reference_body: torso_link
+  wrist_forward_heading_body: pelvis
+  # Soft preference only: low wrist targets may require a shorter reach.
+  wrist_forward_preferred: 0.40
+  height_acceptance: 0.015
+
+ground:
+  z: 0.0
+  friction_mu: 0.6
+  max_normal_force: 1200.0
+
+solver:
+  maxiter: 750
+  tol: 1.0e-5
+  constr_viol_tol: 1.0e-5
+  acceptable_tol: 1.0e-4
+  print_level: 0
+  finite_difference_rel_step: 2.0e-5
+  finite_difference_abs_step: 1.0e-7
+  postcheck_eq_tol: 1.0e-4
+  postcheck_ineq_tol: 1.0e-4
+
+weights:
+  hand_height: 1000.0
+  wrist_forward: 50.0
+  shoulder_level: 100.0
+  forward_manipulability: 5.0
+  torque: 10.0
+  contact_force: 0.0005
+  joint_center: 0.15
+  previous_pose: 2.0
+  clearance: 25.0
+  manipulability: 2.0
+
+limits:
+  torque_reserve_ratio: 0.80
+  base_translation_radius: [0.45, 0.45, 0.65]
+  # Positive pitch is forward; allow at most 10 degrees of backward lean.
+  minimum_body_pitch_deg:
+    pelvis: -10.0
+    torso_link: -10.0
+  minimum_geom_clearance: 0.012
+  preferred_manipulation_clearance: 0.12
+  minimum_wrist_body_clearance: 0.06
+  maximum_shoulder_height_difference: 0.02
+  minimum_hand_ground_height: 0.02
+
+effort_limits:
+  ".*_elbow_joint": 25.0
+  ".*_shoulder_pitch_joint": 25.0
+  ".*_shoulder_roll_joint": 25.0
+  ".*_shoulder_yaw_joint": 25.0
+  ".*_wrist_roll_joint": 25.0
+  ".*_hip_pitch_joint": 88.0
+  ".*_hip_yaw_joint": 88.0
+  "waist_yaw_joint": 88.0
+  ".*_hip_roll_joint": 139.0
+  ".*_knee_joint": 139.0
+  ".*_wrist_pitch_joint": 5.0
+  ".*_wrist_yaw_joint": 5.0
+  "waist_pitch_joint": 50.0
+  "waist_roll_joint": 50.0
+  ".*_ankle_pitch_joint": 50.0
+  ".*_ankle_roll_joint": 50.0
+
+contact_points:
+  left_foot_fl: {body: left_ankle_roll_link, offset: [0.12,  0.026, -0.035], role: foot}
+  left_foot_fr: {body: left_ankle_roll_link, offset: [0.12, -0.026, -0.035], role: foot}
+  left_foot_rl: {body: left_ankle_roll_link, offset: [-0.05,  0.026, -0.035], role: foot}
+  left_foot_rr: {body: left_ankle_roll_link, offset: [-0.05, -0.026, -0.035], role: foot}
+  right_foot_fl: {body: right_ankle_roll_link, offset: [0.12,  0.026, -0.035], role: foot}
+  right_foot_fr: {body: right_ankle_roll_link, offset: [0.12, -0.026, -0.035], role: foot}
+  right_foot_rl: {body: right_ankle_roll_link, offset: [-0.05,  0.026, -0.035], role: foot}
+  right_foot_rr: {body: right_ankle_roll_link, offset: [-0.05, -0.026, -0.035], role: foot}
+  left_knee:  {body: left_knee_link,  offset: [0.01, 0.0, 0.0], role: knee}
+  right_knee: {body: right_knee_link, offset: [0.01, 0.0, 0.0], role: knee}
+  left_thigh:  {body: left_hip_yaw_link,  offset: [-0.03, 0.0, -0.10], role: thigh}
+  right_thigh: {body: right_hip_yaw_link, offset: [-0.03, 0.0, -0.10], role: thigh}
+
+contact_modes:
+  # Standing/deep-squat mode: both feet approximately flat.
+  feet:
+    [left_foot_fl, left_foot_fr, left_foot_rl, left_foot_rr,
+     right_foot_fl, right_foot_fr, right_foot_rl, right_foot_rr]
+
+  # Kneeling modes deliberately keep only forefoot/toe support on the non-knee
+  # support structure. This allows the heels to lift instead of forcing all
+  # eight sole points to remain at z=0.
+  #
+  # "fl/fr" are the two front/forefoot samples in this simplified support model.
+
+  feet_left_knee:
+    [left_foot_fl, left_foot_fr,
+     right_foot_fl, right_foot_fr,
+     left_knee]
+
+  feet_right_knee:
+    [left_foot_fl, left_foot_fr,
+     right_foot_fl, right_foot_fr,
+     right_knee]
+
+  feet_both_knees:
+    [left_foot_fl, left_foot_fr,
+     right_foot_fl, right_foot_fr,
+     left_knee, right_knee]
+
+  # Very-low seated/thigh-supported mode: forefoot contact + both thighs.
+  feet_both_thighs:
+    [left_foot_fl, left_foot_fr,
+     right_foot_fl, right_foot_fr,
+     left_thigh, right_thigh]
+clearance_pairs:
+  - [left_hand_collision, left_thigh_collision]
+  - [left_hand_collision, right_thigh_collision]
+  - [left_hand_collision, left_shin_collision]
+  - [left_hand_collision, right_shin_collision]
+  - [left_hand_collision, torso_collision]
+  - [left_wrist_collision, pelvis_collision]
+  - [left_wrist_collision, torso_collision]
+  - [right_wrist_collision, pelvis_collision]
+  - [right_wrist_collision, torso_collision]
+  - [left_wrist_collision, left_thigh_collision]
+  - [left_wrist_collision, right_thigh_collision]
+  - [left_wrist_collision, left_shin_collision]
+  - [left_wrist_collision, right_shin_collision]
+  - [right_hand_collision, left_thigh_collision]
+  - [right_hand_collision, right_thigh_collision]
+  - [right_hand_collision, left_shin_collision]
+  - [right_hand_collision, right_shin_collision]
+  - [right_hand_collision, torso_collision]
+  - [right_wrist_collision, left_thigh_collision]
+  - [right_wrist_collision, right_thigh_collision]
+  - [right_wrist_collision, left_shin_collision]
+  - [right_wrist_collision, right_shin_collision]
+
+# Surface-to-surface distances for free space around each wrist.
+wrist_body_clearance_pairs:
+  - [left_wrist_collision, pelvis_collision]
+  - [left_wrist_collision, torso_collision]
+  - [left_wrist_collision, left_thigh_collision]
+  - [left_wrist_collision, right_thigh_collision]
+  - [left_wrist_collision, left_shin_collision]
+  - [left_wrist_collision, right_shin_collision]
+  - [right_wrist_collision, pelvis_collision]
+  - [right_wrist_collision, torso_collision]
+  - [right_wrist_collision, left_thigh_collision]
+  - [right_wrist_collision, right_thigh_collision]
+  - [right_wrist_collision, left_shin_collision]
+  - [right_wrist_collision, right_shin_collision]
+
+collision_pairs:
+  - [left_hand_collision, pelvis_collision]
+  - [left_hand_collision, torso_collision]
+  - [right_hand_collision, pelvis_collision]
+  - [right_hand_collision, torso_collision]
+  - [left_hand_collision, left_thigh_collision]
+  - [left_hand_collision, right_thigh_collision]
+  - [left_hand_collision, left_shin_collision]
+  - [left_hand_collision, right_shin_collision]
+  - [right_hand_collision, left_thigh_collision]
+  - [right_hand_collision, right_thigh_collision]
+  - [right_hand_collision, left_shin_collision]
+  - [right_hand_collision, right_shin_collision]
+  - [left_thigh_collision, right_thigh_collision]
+  - [left_shin_collision, right_shin_collision]
